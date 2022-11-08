@@ -11,8 +11,12 @@
     <h1>All Farms Here</h1>
 
     <ul>
+        <% if(!farms){ %>
+            <h3>No farms</h3>
+        <% } else { %>    
         <% for(let f of farms){ %>
             <li><a href="/farms/<%= f._id %>"><%= f.name %></a></li>
+        <% } %>
         <% } %>
     </ul>
 

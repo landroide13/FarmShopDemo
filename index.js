@@ -2,17 +2,29 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const methodoverride = require('method-override');
+const session = require('express-session');
+const flash = require('connect-flash');
+
+
 
 const Product = require('./models/product');
 const Farm = require('./models/farm');
 
+const dbShop1 = 'dbShop1';
+const farmShopDB = 'farmShopDB';
+
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/farmShopDB')
+mongoose.connect(`mongodb://localhost:27017/${dbShop1}`)
         .then(() => {
             console.log("Connection Open")
         })
         .catch(err => console.log(err))
 
+
+const sessionOptions = {secret: 'secret', resave: false, saveUninitialized: false};
+
+app.use(session(sessionOptions));
+app.use(flash());        
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -26,13 +38,6 @@ app.get('/farms', async (req, res) => {
  res.render('farms/index', { farms })
 })
 
-//Find Farm
-app.get('/farms/:id', async(req, res) => {
-    const { id } = req.params;
-    const farm = await Farm.findById(id).populate('products');
-    res.render('farms/show', { farm })
-})
-
 //Create Farm
 app.get('/farms/new', (req, res) =>{
     res.render('farms/new');
@@ -43,6 +48,14 @@ app.post('/farms', async(req, res) => {
     await farm.save()
     res.redirect('/farms')
 })
+
+//Find Farm
+app.get('/farms/:id', async(req, res) => {
+    const { id } = req.params;
+    const farm = await Farm.findById(id).populate('products');
+    res.render('farms/show', { farm })
+})
+
 
 //Add new Product to a Farm
 app.get('/farms/:id/products/new', async(req, res) => {
